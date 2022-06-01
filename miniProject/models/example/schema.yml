@@ -1,0 +1,47 @@
+
+version: 2
+
+models:
+  - name: my_first_dbt_model
+    description: "A starter dbt model"
+    columns:
+      - name: id
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+
+  - name: my_second_dbt_model
+    description: "A starter dbt model"
+    columns:
+      - name: id
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+          
+  - name: badge_xml
+    description: "Badges data table"
+    columns:
+      - name: ID
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+
+  - name: user_xml
+    description: "Users data table"
+    columns:
+      - name: ID
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+  - name: post_xml
+    description: "Posts data table"
+    columns:
+      - name: ID
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
