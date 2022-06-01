@@ -1,0 +1,79 @@
+Loading XML into Snowflake:
+
+1. Using the Snowflake UI
+
+Created a new table with an XML column using Snowflake’s VARIANT data type.
+Created a new column-oriented file format for XML, to be used with the new table.
+Loaded the XML data into the XML column of the new table.
+
+This method worked well for tags.xml but it could not be done successfully for the
+rest of the files as it gave "file size exceeded" error.
+
+2. Using manual sql queries in the worksheets:
+
+create database ubuntu_db;
+create schema unbuntu_schema;
+
+use database ubuntu_db;
+use schema unbuntu_schema;
+use role accountadmin;
+
+create or replace table badges_xml ( src_xml variant);
+
+select * from information_schema.tables where table_name = 'BADGES_XML';
+
+desc table badges_xml;
+
+show tables like '%badges%';
+
+create or replace file format xml_load
+type = 'XML'
+compression = 'auto';
+
+describe file format xml_load;
+
+show file formats like '%xml_load%';
+
+select * from information_schema.file_formats;
+
+SELECT src_xml FROM post_links_xml;
+
+create or replace table post_links (creation_date varchar, id int, link_typeid int, post_id int, related_postid int);
+drop table post_links;
+
+insert into post_links
+
+SELECT 
+value:"@CreationDate" as CreationDate,
+value:"@Id" as Id,
+value:"@LinkTypeId" as LinkTypeId,
+value:"@PostId" as PostId,
+value:"@RelatedPostId" as RelatedPostId
+FROM post_links_xml,
+LATERAL FLATTEN(to_array(post_links_xml.src_xml:"$"));
+
+SELECT XMLGET(value, 'Count' ):"$" as "'count' ",
+XMLGET( value, 'ExcerptPostId' ):"$" as "expert_post_id",
+XMLGET( value, 'Id' ):"$" as "id",
+XMLGET( value, 'TagName' ):"$" as "tag_name",
+XMLGET( value, 'WikiPostId' ):"$" as "wiki_post_id"
+FROM post_links_xml,
+LATERAL FLATTEN(to_array(tags_xml.src_xml:"$" ));
+
+select src_xml from tags_xml;
+  
+SELECT 
+value:"@Count" as count,
+value:"@ExcerptPostId" as expert_post_id,
+value:"@Id" as id,
+value:"@TagName" as tag_name,
+value:"@WikiPostId" as wiki_post_id
+FROM post_links_xml,
+LATERAL FLATTEN(to_array(tags_xml.src_xml:"$"));
+
+Proceeded like this…
+Although, the date did load with the help of SnowSql but when transforming the data into relational type, the values in all the field were returned as NULL. 
+Trying a lot but still stuck on it.
+Thus, could not move forward with the given queries that were supposed to be performed.
+One basic dbt project was successfully created and linked to the snowflake account.
+Same all is uploaded to GitHub as seen here.
